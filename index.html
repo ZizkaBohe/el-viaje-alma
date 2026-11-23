@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>El Viaje de Alma — Corredor Estelar</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- HUD EN PARTIDA -->
+  <div id="hud">
+    <div class="hud-left">
+      <div class="hud-pill radiance-box">
+        <div class="radiance-header">
+          <span>✨ Brillo de Alma</span>
+          <span id="radianceLabel">x1.0</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="radianceFill"></div>
+        </div>
+      </div>
+
+      <div class="hud-pill planet-box" id="planetPill">
+        <div class="planet-header">
+          <span class="planet-dot" id="planetDot"></span>
+          <span id="planetNameHud">Planeta Empatía</span>
+        </div>
+        <div class="progress-track planet-track">
+          <div class="progress-fill planet-fill" id="planetProgressFill" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="hud-pill powerup-badge shield" id="shieldBadge">
+        <svg class="pu-ico" viewBox="0 0 24 24" width="22" height="22"><path d="M12 2 20 5v6c0 5-3.5 9-8 11-4.500-2-8-6-8-11V5z" fill="#5fd0ff" stroke="#e9fdff" stroke-width="1.5"/><path d="M12 17c-4-3-4-6-2.200-6.700 1-.4 2 .1 2.200 1 .2-.9 1.200-1.400 2.200-1 1.800.7 1.800 3.700-2.200 6.700z" fill="#ff5c93"/></svg>
+        <span>Escudo de Empatía activo</span>
+      </div>
+
+      <div class="hud-pill powerup-badge boost" id="boostBadge">
+        <div class="magnet-row">
+          <span class="pu-label"><svg class="pu-ico" viewBox="0 0 24 24" width="22" height="22"><g transform="rotate(35 12 12)"><path d="M12 1c4 3 4.500 8 3.500 14h-7C7.500 9 8 4 12 1z" fill="#fff" stroke="#5b6a86" stroke-width="1"/><path d="M12 1c1.800 1.300 2.800 3 3.200 4.500H8.800C9.200 4 10.200 2.300 12 1z" fill="#ff4d6d"/><circle cx="12" cy="9.500" r="1.800" fill="#4fc3f7" stroke="#2b6fa8" stroke-width=".8"/><path d="M8.500 11 5 17l3.500-1.500zM15.500 11 19 17l-3.500-1.500z" fill="#ff4d6d"/><path d="M10 15.500c0 3 1 5 2 6.500 1-1.500 2-3.500 2-6.500z" fill="#ff9a2a"/></g></svg> ¡Cohete!</span>
+          <span id="boostTimerText">5.5s</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill boost-fill" id="boostFill" style="width: 100%"></div>
+        </div>
+      </div>
+
+      <div class="hud-pill powerup-badge magnet" id="magnetBadge">
+        <div class="magnet-row">
+          <span class="pu-label"><svg class="pu-ico" viewBox="0 0 24 24" width="22" height="22"><path d="M5 20v-8a7 7 0 0 1 14 0v8" fill="none" stroke="#ff4d6d" stroke-width="4.500"/><path d="M5 15v5M19 15v5" stroke="#eef6ff" stroke-width="4.500"/></svg> Imán de Luz</span>
+          <span id="magnetTimerText">8.0s</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill magnet-fill" id="magnetFill" style="width: 100%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="word-hud" id="wordHud"></div>
+
+    <div class="boss-hud" id="bossHud">
+      <div class="boss-kicker">JEFE</div>
+      <div class="boss-name" id="bossName"></div>
+      <div class="boss-lives" id="bossLives"></div>
+    </div>
+
+    <button class="weapon-hud" id="weaponHud" type="button" aria-label="Disparar palabra bonita">
+      <div class="weapon-title">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M3 10v4h3l7 4V6L6 10H3z" fill="#ffd24d" stroke="#fff" stroke-width="1"/><path d="M16 9c1.500 1.500 1.500 4.500 0 6M18.500 6.500c3 3 3 8 0 11" stroke="#ff9ed2" stroke-width="1.800" fill="none" stroke-linecap="round"/></svg>
+        Megáfono de Luz
+      </div>
+      <div class="ammo-row" id="ammoRow"></div>
+      <div class="weapon-hint">F / E · toca aquí o la pantalla para disparar</div>
+    </button>
+
+    <div class="hud-right">
+      <div class="hud-pill score-pill">
+        <div class="stat-block">
+          <span class="stat-label">Estrellas</span>
+          <span class="stat-value stat-stars">⭐ <span id="starsCount">0</span></span>
+        </div>
+        <div class="stat-block">
+          <span class="stat-label">Puntos</span>
+          <span class="stat-value" id="scoreCount">0</span>
+          <span class="best-mini">Récord: <span id="bestHud">0</span></span>
+        </div>
+      </div>
+      <button class="icon-btn" id="soundBtn" title="Activar o silenciar sonido" aria-label="Sonido">🔊</button>
+      <button class="icon-btn" id="pauseBtn" title="Pausar (P)" aria-label="Pausar">⏸</button>
+    </div>
+  </div>
+
+  <div class="word-banner" id="wordBanner"></div>
+  <div class="planet-banner" id="planetBanner"></div>
+
+  <!-- PANTALLA DE INICIO -->
+  <div class="overlay visible" id="startScreen">
+    <div class="card">
+      <h1 class="game-title">El Viaje de Alma</h1>
+      <p class="subtitle">
+        Acompaña a Alma por los puentes de luz del cosmos. Recoge chispas de empatía y supera las barreras sociales que intentan apagar su brillo.
+      </p>
+      <canvas id="almaPreviewCanvas" width="340" height="340"></canvas>
+      <div class="controls-grid">
+        <div class="control-chip">
+          <strong>← → / A D</strong>
+          Cambiar carril<br />(o deslizar)
+        </div>
+        <div class="control-chip">
+          <strong>↑ / W / Espacio</strong>
+          Saltar grietas<br />y meteoritos
+        </div>
+        <div class="control-chip">
+          <strong>↓ / S</strong>
+          Deslizarse bajo<br />barreras altas
+        </div>
+      </div>
+      <p class="boss-tip">En los jefes: recoge palabras bonitas y dispáralas con <b>F</b> o tocando la pantalla.</p>
+      <button class="btn-primary" id="startBtn">✨ Jugar</button>
+    </div>
+  </div>
+
+  <!-- PANTALLA DE PAUSA -->
+  <div class="overlay" id="pauseScreen">
+    <div class="card" style="max-width: 380px;">
+      <h2 class="game-title" style="font-size: 32px;">Pausa</h2>
+      <p class="subtitle">Tómate un respiro estelar. Tu luz sigue brillando.</p>
+      <button class="btn-primary" id="resumeBtn">▶ Continuar</button>
+      <button class="btn-secondary" id="restartFromPauseBtn">↻ Reiniciar viaje</button>
+    </div>
+  </div>
+
+  <!-- PANTALLA DE GAME OVER -->
+  <div class="overlay" id="gameOverScreen">
+    <div class="card">
+      <div class="new-record-pill" id="newRecordPill">🌟 ¡Nuevo récord personal!</div>
+      <h2 class="game-title" style="font-size: 30px;">Fin del recorrido</h2>
+      <div class="barrier-callout" id="stoppedByText">
+        Te detuvo: <span>Los Prejuicios</span>
+      </div>
+
+      <div class="stats-summary">
+        <div class="summary-item">
+          <div class="num" id="finalScore">0</div>
+          <div class="lbl">Puntaje final</div>
+        </div>
+        <div class="summary-item">
+          <div class="num" style="color: var(--gold-glow);">⭐ <span id="finalStars">0</span></div>
+          <div class="lbl">Estrellas</div>
+        </div>
+        <div class="summary-item">
+          <div class="num" style="color: var(--cyan-soft);" id="finalBest">0</div>
+          <div class="lbl">Mejor puntaje</div>
+        </div>
+      </div>
+
+      <div class="quote-box" id="motivationalQuote">
+        "Ninguna etiqueta define tu luz. Cada paso con valentía rompe un muro invisible."
+      </div>
+
+      <button class="btn-primary" id="retryBtn">↻ Volver a intentarlo</button>
+    </div>
+  </div>
+
+  <!-- Scripts clásicos (funcionan abriendo el archivo con doble clic, sin servidor) -->
+  <script src="js/config.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/alma.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/world.js"></script>
+  <script src="js/boss.js"></script>
+</body>
+</html>
